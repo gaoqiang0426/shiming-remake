@@ -1,0 +1,23 @@
+import { chromium } from 'playwright-core';
+const EXE='C:/Users/阿强/AppData/Local/ms-playwright/chromium-1254/chrome-win64/chrome.exe';
+const b=await chromium.launch({executablePath:EXE});
+const p=await b.newPage({viewport:{width:844,height:390},deviceScaleFactor:2,isMobile:true,hasTouch:true});
+p.on('pageerror',e=>console.log('ERR',e.message));
+await p.goto('http://127.0.0.1:8765/index.html');
+await p.waitForFunction(()=>window.G&&window.G.ui);
+await p.getByText('开始新的使命').click();
+await p.waitForFunction(()=>window.G.game);
+await p.waitForTimeout(400);
+const info=await p.evaluate(()=>{
+  const n=G.game.world.npcs.find(x=>G.NPC[x.id].shop);
+  G.game.player.x=n.x; G.game.player.y=n.y+34;
+  return {npc:n.id, shop:G.NPC[n.id].shop, near:!!G.nearInteract()};
+});
+console.log(JSON.stringify(info));
+await p.waitForTimeout(400);
+console.log('btnAction class=', await p.locator('#btnAction').getAttribute('class'));
+await p.locator('#btnAction').click({force:true});
+await p.waitForTimeout(300);
+console.log('dialog show=', await p.locator('#dialog').getAttribute('class'));
+console.log('dlg buttons=', await p.locator('#dialog .btn').allInnerTexts());
+await b.close();

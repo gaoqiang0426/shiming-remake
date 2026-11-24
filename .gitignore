@@ -1,0 +1,5 @@
+node_modules/
+shots/
+tools/_src/
+*.zip
+.DS_Store

@@ -1,0 +1,11 @@
+import { chromium } from 'playwright-core';
+const EXE='C:/Users/阿强/AppData/Local/ms-playwright/chromium-1254/chrome-win64/chrome.exe';
+const b=await chromium.launch({executablePath:EXE});
+const p=await b.newPage({viewport:{width:1280,height:720}});
+await p.goto('http://127.0.0.1:8765/index.html');
+await p.waitForFunction(()=>window.G&&window.G.ui);
+await p.getByText('开始新的使命').click();
+await p.waitForTimeout(600);
+await p.screenshot({path:'shots/30-desktop.png'});
+await b.close();
+console.log('ok');

@@ -1,0 +1,20 @@
+import { chromium } from 'playwright-core';
+const EXE='C:/Users/阿强/AppData/Local/ms-playwright/chromium-1254/chrome-win64/chrome.exe';
+const b=await chromium.launch({executablePath:EXE});
+const p=await b.newPage({viewport:{width:844,height:390}});
+await p.goto('http://127.0.0.1:8765/index.html');
+await p.waitForFunction(()=>window.G&&window.DATA);
+const miss=await p.evaluate(()=>{
+  const out=[];
+  const need=(k,tag)=>{ if(!window.S[k]) out.push(tag+' → '+k); };
+  Object.keys(G.NPC).forEach(id=>{ need('dlg_'+id.replace(/^npc_/,'')+'_default','npc:'+id); need(G.NPC[id].name,'npc-name:'+id); });
+  Object.keys(G.ITEM).forEach(id=>{ need(G.ITEM[id].name,'item:'+id); if(G.ITEM[id].desc) need(G.ITEM[id].desc,'item-desc:'+id); });
+  Object.keys(G.SKILL).forEach(id=>{ need(G.SKILL[id].name,'skill:'+id); need(G.SKILL[id].desc,'skill-desc:'+id); });
+  Object.keys(G.ENEMY).forEach(id=>{ need(G.ENEMY[id].name,'enemy:'+id); });
+  Object.keys(G.MAP).forEach(id=>{ need(G.MAP[id].nameKey,'map:'+id); });
+  Object.keys(G.SHOP).forEach(id=>{ need(G.SHOP[id].name,'shop:'+id); });
+  G.QUESTS.forEach(q=>{ need(q.title,'quest-title:'+q.id); need(q.desc,'quest-desc:'+q.id); });
+  return out;
+});
+console.log(miss.length? '缺失文本 '+miss.length+' 条：\n'+miss.join('\n') : '全部文本键齐备');
+await b.close();
