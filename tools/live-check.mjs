@@ -1,0 +1,18 @@
+import { chromium } from 'playwright-core';
+const EXE='C:/Users/阿强/AppData/Local/ms-playwright/chromium-1254/chrome-win64/chrome.exe';
+const URL='https://gaoqiang0426.github.io/shiming-remake/';
+const b=await chromium.launch({executablePath:EXE});
+const p=await b.newPage({viewport:{width:844,height:390},deviceScaleFactor:2,isMobile:true,hasTouch:true});
+const errs=[];
+p.on('pageerror',e=>errs.push('page: '+e.message));
+p.on('console',m=>{if(m.type()==='error')errs.push('console: '+m.text());});
+await p.goto(URL,{waitUntil:'networkidle'});
+await p.waitForFunction(()=>window.G&&window.G.ui);
+await p.getByText('开始新的使命').click();
+await p.waitForFunction(()=>window.G.game);
+await p.waitForTimeout(1200);
+await p.screenshot({path:'shots/40-live.png'});
+const st=await p.evaluate(()=>({map:G.game.st.map, hp:G.game.player.hp, sw:!!navigator.serviceWorker.controller, manifest:!!document.querySelector('link[rel=manifest]')}));
+console.log('线上运行状态', JSON.stringify(st));
+console.log(errs.length? '错误:\n'+errs.slice(0,5).join('\n') : '线上零错误');
+await b.close();
